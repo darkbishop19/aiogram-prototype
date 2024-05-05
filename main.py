@@ -1,9 +1,10 @@
 import json
 import logging
 import time
+from aiogram import Bot, Dispatcher, types
+from app.handlers import router
+from app.admin import admin_router
 
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import CommandStart, Command
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -11,6 +12,8 @@ import asyncio
 load_dotenv()
 bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
+dp.include_routers(admin_router,
+                   router)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,21 +22,6 @@ async def handler(event, context):
     body = json.loads(event['body'])
     update = types.Update.parse_obj(body)
     await dp.feed_webhook_update(bot, update)
-
-
-@dp.message(CommandStart())
-async def cmd_start(message: types.Message):
-    await message.answer(text='Привет', parse_mode='HTML')
-
-
-@dp.message(Command('help'))
-async def cmd_start(message: types.Message):
-    await message.answer(text='Помощь', parse_mode='HTML')
-
-
-@dp.message(F.text)
-async def cmd_start(message: types.Message):
-    await message.answer(text=message.text, parse_mode='HTML')
 
 
 async def main():
